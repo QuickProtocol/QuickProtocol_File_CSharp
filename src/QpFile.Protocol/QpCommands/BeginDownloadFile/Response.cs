@@ -7,6 +7,6 @@ namespace QpFile.Protocol.QpCommands.BeginDownloadFile
     {
         protected override JsonTypeInfo<Response> GetTypeInfo() => BeginDownloadFileCommandSerializerContext.Default.Response;
         public string FileId { get; set; }
-        public string Length { get; set; }
+        public long Length { get; set; }
     }
 }

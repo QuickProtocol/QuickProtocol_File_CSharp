@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace QpFile.Protocol.QpCommands.BeginDownloadFile
 {
-    [DisplayName("Begin download folder")]
+    [DisplayName("Begin download file")]
     public class Request : AbstractQpSerializer<Request>, IQpCommandRequest<Request, Response>
     {
         protected override JsonTypeInfo<Request> GetTypeInfo() => BeginDownloadFileCommandSerializerContext.Default.Request;
-        public string File { get; set; }
+        public string Path { get; set; }
     }
 }

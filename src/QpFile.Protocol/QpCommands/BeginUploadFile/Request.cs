@@ -13,8 +13,7 @@ namespace QpFile.Protocol.QpCommands.BeginUploadFile
     public class Request : AbstractQpSerializer<Request>, IQpCommandRequest<Request, Response>
     {
         protected override JsonTypeInfo<Request> GetTypeInfo() => BeginUploadFileCommandSerializerContext.Default.Request;
-        public string Folder { get; set; }
-        public string FileName { get; set; }
+        public string Path { get; set; }
         public long FileLength { get; set; }
     }
 }
