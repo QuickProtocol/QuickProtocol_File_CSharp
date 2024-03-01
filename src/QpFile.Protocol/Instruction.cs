@@ -13,6 +13,7 @@ namespace QpFile.Protocol
                 QpCommandInfo.Create(new QpCommands.Login.Request()),
                 QpCommandInfo.Create(new QpCommands.ListFolder.Request()),
                 QpCommandInfo.Create(new QpCommands.CreateFolder.Request()),
+                QpCommandInfo.Create(new QpCommands.MovePath.Request()),
                 QpCommandInfo.Create(new QpCommands.Delete.Request()),
                 QpCommandInfo.Create(new QpCommands.BeginUploadFile.Request()),
                 QpCommandInfo.Create(new QpCommands.EndUploadFile.Request()),

@@ -1,4 +1,5 @@
-﻿namespace QpFile.Server
+﻿
+namespace QpFile.Server
 {
     public class UserFolderInfo
     {
@@ -7,13 +8,37 @@
         /// 权限
         /// </summary>
         public FolderPermission Permission { get; set; }
+
         /// <summary>
-        /// 是否有读权限
+        /// 路径是否有读权限
         /// </summary>
-        public bool HasReadPermission => Permission == FolderPermission.ReadOnly || Permission == FolderPermission.ReadAndWrite;
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool HasReadPermission(string path)
+        {
+            if (Folder == null) return false;
+            if (Permission == FolderPermission.ReadOnly || Permission == FolderPermission.ReadAndWrite)
+            {
+                if (Folder == "*" || path.StartsWith(Folder))
+                    return true;
+            }
+            return false;
+        }
+
         /// <summary>
-        /// 是否有写权限
+        /// 路径是否有写权限
         /// </summary>
-        public bool HasWritePermission => Permission == FolderPermission.WriteOnly || Permission == FolderPermission.ReadAndWrite;
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public bool HasWritePermission(string path)
+        {
+            if (Folder == null) return false;
+            if (Permission == FolderPermission.WriteOnly || Permission == FolderPermission.ReadAndWrite)
+            {
+                if (Folder == "*" || path.StartsWith(Folder))
+                    return true;
+            }
+            return false;
+        }
     }
 }

@@ -18,6 +18,7 @@ namespace QpFile.Server
             commandExecuterManager.Register<Protocol.QpCommands.Login.Request, Protocol.QpCommands.Login.Response>(executeCommand_Login);
             commandExecuterManager.Register<Protocol.QpCommands.ListFolder.Request, Protocol.QpCommands.ListFolder.Response>(executeCommand_ListFolder);
             commandExecuterManager.Register<Protocol.QpCommands.CreateFolder.Request, Protocol.QpCommands.CreateFolder.Response>(executeCommand_CreateFolder);
+            commandExecuterManager.Register<Protocol.QpCommands.MovePath.Request, Protocol.QpCommands.MovePath.Response>(executeCommand_MovePath);
             commandExecuterManager.Register<Protocol.QpCommands.Delete.Request, Protocol.QpCommands.Delete.Response>(executeCommand_Delete);
             commandExecuterManager.Register<Protocol.QpCommands.BeginUploadFile.Request, Protocol.QpCommands.BeginUploadFile.Response>(executeCommand_BeginUploadFile);
             commandExecuterManager.Register<Protocol.QpCommands.EndUploadFile.Request, Protocol.QpCommands.EndUploadFile.Response>(executeCommand_EndUploadFile);
@@ -49,7 +50,7 @@ namespace QpFile.Server
             var userInfo = getUserInfo(channel);
             var hasPermission = false;
             if (userInfo.Folders != null)
-                hasPermission = userInfo.Folders.Any(t => path.StartsWith(t.Folder) && t.HasReadPermission);
+                hasPermission = userInfo.Folders.Any(t => t.HasReadPermission(path));
             if (!hasPermission)
                 throw new ApplicationException("No permission to read from path: " + path);
         }
@@ -59,7 +60,7 @@ namespace QpFile.Server
             var userInfo = getUserInfo(channel);
             var hasPermission = false;
             if (userInfo.Folders != null)
-                hasPermission = userInfo.Folders.Any(t => path.StartsWith(t.Folder) && t.HasWritePermission);
+                hasPermission = userInfo.Folders.Any(t => t.HasWritePermission(path));
             if (!hasPermission)
                 throw new ApplicationException("No permission to write from path: " + path);
         }
@@ -116,6 +117,21 @@ namespace QpFile.Server
             checkWritePermission(channel, folder);
             Directory.CreateDirectory(folder);
             return new Protocol.QpCommands.CreateFolder.Response();
+        }
+
+        private Protocol.QpCommands.MovePath.Response executeCommand_MovePath(QpChannel channel, Protocol.QpCommands.MovePath.Request request)
+        {
+            var sourcePath = Path.GetFullPath(request.SourcePath);
+            var targetPath = Path.GetFullPath(request.TargetPath);
+            checkWritePermission(channel, sourcePath);
+            checkWritePermission(channel, targetPath);
+            if (Directory.Exists(sourcePath))
+                Directory.Move(sourcePath, targetPath);
+            else if (File.Exists(sourcePath))
+                File.Move(sourcePath, targetPath);
+            else
+                throw new IOException($"Path[{sourcePath}] not exist.");
+            return new Protocol.QpCommands.MovePath.Response();
         }
 
         private Protocol.QpCommands.Delete.Response executeCommand_Delete(QpChannel channel, Protocol.QpCommands.Delete.Request request)

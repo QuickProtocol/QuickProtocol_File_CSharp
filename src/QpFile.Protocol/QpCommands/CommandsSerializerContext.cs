@@ -17,6 +17,11 @@ internal partial class LoginCommandSerializerContext : JsonSerializerContext { }
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 internal partial class CreateFolderCommandSerializerContext : JsonSerializerContext { }
 
+[JsonSerializable(typeof(MovePath.Request))]
+[JsonSerializable(typeof(MovePath.Response))]
+[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
+internal partial class MovePathCommandSerializerContext : JsonSerializerContext { }
+
 [JsonSerializable(typeof(Delete.Request))]
 [JsonSerializable(typeof(Delete.Response))]
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
