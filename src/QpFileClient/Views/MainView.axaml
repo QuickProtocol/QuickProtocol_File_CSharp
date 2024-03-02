@@ -6,11 +6,96 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="QpFileClient.Views.MainView"
              x:DataType="vm:MainViewModel">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
-
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	<UserControl.Styles>
+		<Style Selector="Label">
+			<Setter Property="Margin" Value="12 0 0 0" />
+			<Setter Property="VerticalAlignment" Value="Stretch" />
+			<Setter Property="VerticalContentAlignment" Value="Center" />
+		</Style>
+		<Style Selector="TextBox">
+			<Setter Property="Margin" Value="3" />
+			<Setter Property="MinHeight" Value="0" />
+			<Setter Property="Padding" Value="3" />
+		</Style>
+	</UserControl.Styles>
+	<Design.DataContext>
+		<vm:MainViewModel />
+	</Design.DataContext>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="36"></RowDefinition>
+			<RowDefinition Height="*"></RowDefinition>
+		</Grid.RowDefinitions>
+		<Border Grid.Row="0" Padding="0">
+			<StackPanel Orientation="Horizontal">
+				<Label VerticalAlignment="Center">连接字符串:</Label>
+				<TextBox Width="240" Text="{Binding ConnectionString}"></TextBox>
+				<Label>用户:</Label>
+				<TextBox Text="{Binding User}"></TextBox>
+				<Label>密码:</Label>
+				<TextBox PasswordChar="●" Text="{Binding Password}"></TextBox>
+				<Button Command="{Binding Connect}">连接</Button>
+			</StackPanel>
+		</Border>
+		<Grid Grid.Row="1">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*"></ColumnDefinition>
+				<ColumnDefinition Width="4"></ColumnDefinition>
+				<ColumnDefinition Width="*"></ColumnDefinition>
+			</Grid.ColumnDefinitions>
+			<Border Grid.Column="0" BorderThickness="1" BorderBrush="Black" CornerRadius="4" Margin="4 4 0 4">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="36"></RowDefinition>
+						<RowDefinition Height="*"></RowDefinition>
+					</Grid.RowDefinitions>
+					<Border Grid.Row="0">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="60"></ColumnDefinition>
+								<ColumnDefinition Width="*"></ColumnDefinition>
+								<ColumnDefinition Width="40"></ColumnDefinition>
+							</Grid.ColumnDefinitions>
+							<Label Grid.Column="0">本地</Label>
+							<TextBox Grid.Column="1" Text="{Binding LocalPath}"></TextBox>
+							<Button Grid.Column="2">GO</Button>
+						</Grid>
+					</Border>
+					<Border Grid.Row="1">
+						<ListBox>
+						</ListBox>
+					</Border>
+				</Grid>
+			</Border>
+			<GridSplitter Grid.Column="1"></GridSplitter>
+			<Border Grid.Column="2" BorderThickness="1" BorderBrush="Black" CornerRadius="4" Margin="0 4 4 4">
+				<Grid>
+					<Grid.RowDefinitions>
+						<RowDefinition Height="36"></RowDefinition>
+						<RowDefinition Height="*"></RowDefinition>
+					</Grid.RowDefinitions>
+					<Border Grid.Row="0">
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition Width="60"></ColumnDefinition>
+								<ColumnDefinition Width="*"></ColumnDefinition>
+								<ColumnDefinition Width="40"></ColumnDefinition>
+							</Grid.ColumnDefinitions>
+							<Label Grid.Column="0">远程</Label>
+							<TextBox Grid.Column="1" Text="{Binding RemotePath}"></TextBox>
+							<Button Grid.Column="2">GO</Button>
+						</Grid>
+					</Border>
+					<Border Grid.Row="1">
+						<DataGrid>
+							<DataGrid.Columns>
+								<DataGridTextColumn Header="名称" Width="1*" />
+								<DataGridTextColumn Header="最后修改时间" Width="1*" />
+							</DataGrid.Columns>
+						</DataGrid>
+					</Border>
+				</Grid>
+			</Border>
+		</Grid>
+	</Grid>
 </UserControl>
