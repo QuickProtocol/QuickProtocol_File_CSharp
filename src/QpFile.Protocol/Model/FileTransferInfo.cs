@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QpFile.Server
+namespace QpFile.Protocol.Model
 {
     public class FileTransferInfo : IDisposable
     {
@@ -15,7 +15,8 @@ namespace QpFile.Server
         public long Length { get; private set; }
         public long LastOffset { get; private set; }
         public DateTime LastTransferTime { get; private set; }
-        public bool IsDisposed { get; private set; } = false;
+        public bool IsCompleted { get; private set; } = false;
+        public string ErrorMessage { get; private set; }
 
         public FileTransferInfo(string id, string path, long length, Stream stream)
         {
@@ -34,10 +35,17 @@ namespace QpFile.Server
             LastTransferTime = DateTime.Now;
         }
 
+        public void SetErrorMessage(string message)
+        {
+            ErrorMessage = message;
+        }
+
         public void Dispose()
         {
+            if (IsCompleted)
+                return;
             stream.Dispose();
-            IsDisposed = true;
+            IsCompleted = true;
         }
     }
 }

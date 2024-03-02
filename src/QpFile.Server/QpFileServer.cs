@@ -26,6 +26,7 @@ namespace QpFile.Server
             noticeHandlerManager = new NoticeHandlerManager();
             noticeHandlerManager.Register<Protocol.QpNotices.FilePartInfo>(OnFilePartInfoNotice);
 
+            options.QpServerOptions.InstructionSet = new[] { Protocol.Instruction.Instance };
             options.QpServerOptions.RegisterCommandExecuterManager(commandExecuterManager);
             options.QpServerOptions.RegisterNoticeHandlerManager(noticeHandlerManager);
         }
@@ -74,41 +75,58 @@ namespace QpFile.Server
                 return new Protocol.QpCommands.ListFolder.Response()
                 {
                     Folders = userInfo.Folders
-                    .Select(t => new DirectoryInfo(t.Folder))
-                    .Where(t => t.Exists)
                     .Select(t => new QpFolderInfo()
                     {
-                        Name = t.Name,
-                        FullName = t.FullName,
-                        LastWriteTime = t.LastWriteTime
+                        Name = t.Folder,
+                        FullName = t.Folder,
+                        LastWriteTime = DateTime.MinValue
                     }).ToArray()
                 };
-            var folder = Path.GetFullPath(request.Folder);
-            checkReadPermission(channel, folder);
-            if (!Directory.Exists(folder))
-                throw new IOException($"Folder[{folder}] not exist.");
-            return new Protocol.QpCommands.ListFolder.Response()
+            if (request.Folder == "*")
             {
-                Folders = Directory.GetDirectories(folder)
-                    .Select(t => new DirectoryInfo(t))
-                    .Where(t => t.Exists)
-                    .Select(t => new QpFolderInfo()
-                    {
-                        Name = t.Name,
-                        FullName = t.FullName,
-                        LastWriteTime = t.LastWriteTime
-                    }).ToArray(),
-                Files = Directory.GetFiles(folder)
-                    .Select(t => new FileInfo(t))
-                    .Where(t => t.Exists)
-                    .Select(t => new QpFileInfo()
-                    {
-                        Name = t.Name,
-                        FullName = t.FullName,
-                        LastWriteTime = t.LastWriteTime,
-                        Length = t.Length
-                    }).ToArray()
-            };
+                checkReadPermission(channel, request.Folder);
+                return new Protocol.QpCommands.ListFolder.Response()
+                {
+                    Folders = DriveInfo.GetDrives()
+                        .Where(t => t.IsReady)
+                        .Select(t => t.RootDirectory)
+                        .Select(t => new QpFolderInfo()
+                        {
+                            Name = t.Name,
+                            FullName = t.FullName,
+                            LastWriteTime = t.LastWriteTime
+                        }).ToArray()
+                };
+            }
+            else
+            {
+                var folder = Path.GetFullPath(request.Folder);
+                checkReadPermission(channel, folder);
+                if (!Directory.Exists(folder))
+                    throw new IOException($"Folder[{folder}] not exist.");
+                return new Protocol.QpCommands.ListFolder.Response()
+                {
+                    Folders = Directory.GetDirectories(folder)
+                        .Select(t => new DirectoryInfo(t))
+                        .Where(t => t.Exists)
+                        .Select(t => new QpFolderInfo()
+                        {
+                            Name = t.Name,
+                            FullName = t.FullName,
+                            LastWriteTime = t.LastWriteTime
+                        }).ToArray(),
+                    Files = Directory.GetFiles(folder)
+                        .Select(t => new FileInfo(t))
+                        .Where(t => t.Exists)
+                        .Select(t => new QpFileInfo()
+                        {
+                            Name = t.Name,
+                            FullName = t.FullName,
+                            LastWriteTime = t.LastWriteTime,
+                            Length = t.Length
+                        }).ToArray()
+                };
+            }
         }
 
         private Protocol.QpCommands.CreateFolder.Response executeCommand_CreateFolder(QpChannel channel, Protocol.QpCommands.CreateFolder.Request request)
@@ -165,7 +183,7 @@ namespace QpFile.Server
             }
             Task.Run(async () =>
             {
-                while (!fileTransferInfo.IsDisposed)
+                while (!fileTransferInfo.IsCompleted)
                 {
                     await Task.Delay(1000);
                     //如果检测到上传文件持续1分钟都没有收到文件数据，则删除文件
@@ -214,7 +232,7 @@ namespace QpFile.Server
             //等待2秒后，开始发送文件数据
             Task.Delay(2000).ContinueWith(async t =>
             {
-                var bufferSize = 4096;
+                var bufferSize = options.TransferBufferSize;
                 var buffer = new byte[bufferSize];
                 using (fs)
                 {

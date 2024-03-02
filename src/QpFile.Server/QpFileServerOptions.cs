@@ -14,5 +14,9 @@ namespace QpFile.Server
         /// 登录函数
         /// </summary>
         public Func<string, string, UserInfo> LoginFunc { get; set; }
+        /// <summary>
+        /// 传输缓存大小
+        /// </summary>
+        public int TransferBufferSize { get; set; } = 4096;
     }
 }
